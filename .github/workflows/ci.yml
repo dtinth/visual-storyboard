@@ -21,14 +21,11 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Build packages
-        run: vp run visual-storyboard#build
-
       - name: Run checks
-        run: vp check
+        run: vp run check
 
       - name: Run unit tests
-        run: vp test
+        run: vp run test
 
   e2e:
     runs-on: ubuntu-latest
@@ -43,11 +40,8 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Build packages
-        run: vp run visual-storyboard#build
-
       - name: Install Playwright browser
         run: vp exec playwright install --with-deps chromium
 
       - name: Run end-to-end tests
-        run: vp exec playwright test
+        run: vp run e2e
