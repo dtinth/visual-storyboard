@@ -74,3 +74,19 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
+
+## Releasing
+
+To bump the version and publish a new release of `packages/core`:
+
+1. Run `vp check` and `vp test` in `packages/core` to validate.
+2. Run bumpp from the repo root using `env -C` to target `packages/core`:
+   ```
+   env -C packages/core vp exec bumpp <version> --no-push
+   ```
+   Replace `<version>` with the target version (e.g. `0.1.2`). This updates `package.json`, commits, and creates a git tag.
+3. Push the commit and tag from the repo root:
+   ```
+   git push && git push origin v<version>
+   ```
+   Pushing the tag triggers the `publish.yml` GitHub Actions workflow, which publishes to npm via trusted publishing (no token required).
