@@ -9,15 +9,13 @@ export default defineConfig({
   },
   webServer: [
     {
-      command:
-        "cd /home/runner/work/visual-storyboard/visual-storyboard/apps/e2e && ../../node_modules/.bin/vp run generate && ../../node_modules/.bin/vp dev --host 127.0.0.1 --port 4174",
+      command: "cd apps/e2e && vp dev --host 127.0.0.1 --port 4174",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       url: "http://127.0.0.1:4174",
     },
     {
-      command:
-        "cd /home/runner/work/visual-storyboard/visual-storyboard/apps/viewer && ../../node_modules/.bin/vp dev --host 127.0.0.1 --port 4173",
+      command: "cd apps/viewer && vp dev --host 127.0.0.1 --port 4173",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       url: "http://127.0.0.1:4173",
