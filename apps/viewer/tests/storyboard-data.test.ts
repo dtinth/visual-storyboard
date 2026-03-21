@@ -11,11 +11,11 @@ test("parseNdjsonDocument ignores blank lines and returns storyboard events", ()
     [
       JSON.stringify({
         version: 1,
-        type: "checkpoint",
+        type: "frame",
         time: "2026-03-21T00:00:00.000Z",
         name: "Welcome",
         slug: "welcome",
-        ariaSnapshot: "body",
+        annotations: {},
         highlights: [],
         viewport: { width: 800, height: 600 },
         screenshot: {
@@ -30,7 +30,7 @@ test("parseNdjsonDocument ignores blank lines and returns storyboard events", ()
   );
 
   expect(events).toHaveLength(1);
-  expect(events[0]?.type).toBe("checkpoint");
+  expect(events[0]?.type).toBe("frame");
 });
 
 test("resolveStoryboardAssetUrl resolves relative asset URLs against the NDJSON URL", () => {
@@ -52,11 +52,11 @@ test("loadStoryboard resolves screenshot URLs from the fetched NDJSON document",
       new Response(
         `${JSON.stringify({
           version: 1,
-          type: "checkpoint",
+          type: "frame",
           time: "2026-03-21T00:00:00.000Z",
           name: "Welcome",
           slug: "welcome",
-          ariaSnapshot: "body",
+          annotations: {},
           highlights: [],
           viewport: { width: 800, height: 600 },
           screenshot: {
