@@ -41,7 +41,7 @@ jobs:
           run-install: true
 
       - name: Set up Playwright
-        uses: ./.github/actions/setup-playwright
+        uses: dtinth/setup-playwright-test-docker@main
 
       - name: Run end-to-end tests
         run: vp run e2e
@@ -71,7 +71,7 @@ jobs:
         run: vp run visual-storyboard#build
 
       - name: Set up Playwright
-        uses: ./.github/actions/setup-playwright
+        uses: dtinth/setup-playwright-test-docker@main
 
       - name: Run Swag Labs example tests
         working-directory: apps/example
