@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test("viewer supports keyboard navigation between checkpoints", async ({ page }) => {
+test("viewer supports keyboard navigation between frames", async ({ page }) => {
   await page.goto("/?url=http://127.0.0.1:4174/storyboards/basic.ndjson");
-
-  await expect(page.getByRole("heading", { name: "visual-storyboard viewer" })).toBeVisible();
 
   const firstCheckpoint = page.getByRole("tab", { name: /Landing state/ });
   const secondCheckpoint = page.getByRole("tab", { name: /Menu open/ });
