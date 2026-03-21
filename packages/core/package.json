@@ -1,8 +1,12 @@
 {
   "name": "visual-storyboard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Core types, transport interfaces, writer helpers, and default transports for visual-storyboard.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dtinth/visual-storyboard.git"
+  },
   "files": [
     "dist",
     "src"
@@ -15,7 +19,8 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "build": "vp pack",
