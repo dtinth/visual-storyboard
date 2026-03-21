@@ -6,6 +6,6 @@ export default defineConfig({
   },
   lint: { options: { typeAware: true, typeCheck: true } },
   test: {
-    exclude: ["**/node_modules/**", "apps/viewer/e2e/**"],
+    exclude: ["**/node_modules/**", "apps/*/e2e/**"],
   },
 });
