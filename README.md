@@ -11,7 +11,7 @@ At key points in your test, call `storyboard.capture("Step name", locator)`. Aft
 ## Packages
 
 - [`packages/core`](packages/core) — TypeScript types, pluggable transport interface, `StoryboardWriter`, `FileTransport`, and the built-in Playwright integration. See the [core README](packages/core/README.md) for the full API.
-- [`apps/viewer`](apps/viewer) — React viewer that loads a storyboard NDJSON from a URL
+- [`apps/viewer`](apps/viewer) — [React viewer](https://visual-storyboard.vercel.app/) that loads a storyboard NDJSON from a URL
 - [`apps/example`](apps/example) — example Playwright suite testing the [Swag Labs](https://www.saucedemo.com) checkout flow
 
 ## Development

@@ -175,6 +175,29 @@ export function App() {
             );
           })}
         </div>
+
+        <div className="px-3 py-2 border-top flex-shrink-0">
+          <span className="small text-body-tertiary">
+            Powered by{" "}
+            <a
+              className="text-body-tertiary"
+              href="https://visual-storyboard.vercel.app/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              visual-storyboard
+            </a>{" "}
+            ·{" "}
+            <a
+              className="text-body-tertiary"
+              href="https://github.com/dtinth/visual-storyboard"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              GitHub
+            </a>
+          </span>
+        </div>
       </aside>
 
       {/* Main content */}
