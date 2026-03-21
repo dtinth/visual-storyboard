@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { getNextCheckpointIndex } from "./checkpoint-navigation";
 import type { ResolvedStoryboardCheckpoint } from "./storyboard-data";
 import { loadStoryboard } from "./storyboard-data";
 
@@ -13,11 +14,15 @@ function useStoryboardUrl() {
 export function App() {
   const storyboardUrl = useStoryboardUrl();
   const [events, setEvents] = useState<ResolvedStoryboardCheckpoint[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(Boolean(storyboardUrl));
+  const checkpointButtons = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     if (!storyboardUrl) {
+      setEvents([]);
+      setActiveIndex(-1);
       return;
     }
     let cancelled = false;
@@ -26,6 +31,7 @@ export function App() {
       .then((loadedEvents) => {
         if (!cancelled) {
           setEvents(loadedEvents);
+          setActiveIndex(loadedEvents.length > 0 ? 0 : -1);
           setError("");
         }
       })
@@ -33,6 +39,7 @@ export function App() {
         if (!cancelled) {
           setError(loadError instanceof Error ? loadError.message : "Unknown error");
           setEvents([]);
+          setActiveIndex(-1);
         }
       })
       .finally(() => {
@@ -45,8 +52,25 @@ export function App() {
     };
   }, [storyboardUrl]);
 
+  const activeEvent = activeIndex >= 0 ? events[activeIndex] : undefined;
+
+  function handleCheckpointKeyDown(index: number, key: string) {
+    const nextIndex = getNextCheckpointIndex(index, events.length, key);
+    if (nextIndex === index || nextIndex < 0) {
+      return;
+    }
+    setActiveIndex(nextIndex);
+    checkpointButtons.current[nextIndex]?.focus();
+  }
+
   return (
     <main className="container py-4">
+      <a
+        className="btn btn-outline-primary visually-hidden-focusable mb-3"
+        href="#storyboard-details"
+      >
+        Skip to storyboard details
+      </a>
       <section className="mb-4">
         <h1 className="display-6 fw-semibold mb-3">visual-storyboard viewer</h1>
         <p className="text-body-secondary mb-2">
@@ -66,41 +90,112 @@ export function App() {
         </div>
       ) : null}
 
-      <section className="vstack gap-4">
-        {events.map((event) => (
-          <article key={`${event.slug}-${event.time}`} className="card shadow-sm">
+      <section className="row g-4 align-items-start">
+        <div className="col-lg-4">
+          <div className="card shadow-sm">
             <div className="card-body">
-              <div className="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
-                <div>
-                  <h2 className="h4 mb-1">{event.name}</h2>
-                  <div className="text-body-secondary small">
-                    {event.slug} · {new Date(event.time).toLocaleString()}
-                  </div>
-                </div>
-                <span className="badge text-bg-dark">
-                  {event.viewport.width}×{event.viewport.height}
-                </span>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h2 className="h5 mb-0">Checkpoints</h2>
+                <span className="badge text-bg-secondary">{events.length}</span>
               </div>
-
-              <img
-                className="img-fluid rounded border checkpoint-image"
-                src={event.resolvedScreenshotUrl}
-                alt={event.name}
-              />
-
-              <div className="row row-cols-1 row-cols-lg-2 g-3 mt-1">
-                <div className="col">
-                  <h3 className="h6 text-uppercase text-body-secondary">ARIA snapshot</h3>
-                  <pre className="viewer-pre">{event.ariaSnapshot}</pre>
-                </div>
-                <div className="col">
-                  <h3 className="h6 text-uppercase text-body-secondary">Highlights</h3>
-                  <pre className="viewer-pre">{JSON.stringify(event.highlights, null, 2)}</pre>
-                </div>
+              <p className="text-body-secondary small mb-3">
+                Use <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>Home</kbd>, and <kbd>End</kbd> to move between
+                checkpoints.
+              </p>
+              <div
+                aria-label="Storyboard checkpoints"
+                aria-orientation="vertical"
+                className="list-group"
+                role="tablist"
+              >
+                {events.map((event, index) => {
+                  const isActive = index === activeIndex;
+                  return (
+                    <button
+                      key={`${event.slug}-${event.time}`}
+                      ref={(element) => {
+                        checkpointButtons.current[index] = element;
+                      }}
+                      aria-controls={`checkpoint-panel-${index}`}
+                      aria-selected={isActive}
+                      className={`list-group-item list-group-item-action text-start ${
+                        isActive ? "active" : ""
+                      }`}
+                      id={`checkpoint-tab-${index}`}
+                      onClick={() => setActiveIndex(index)}
+                      onKeyDown={(eventKey) => {
+                        const nextIndex = getNextCheckpointIndex(
+                          index,
+                          events.length,
+                          eventKey.key,
+                        );
+                        if (nextIndex !== index) {
+                          eventKey.preventDefault();
+                          handleCheckpointKeyDown(index, eventKey.key);
+                        }
+                      }}
+                      role="tab"
+                      tabIndex={isActive ? 0 : -1}
+                      type="button"
+                    >
+                      <span className="d-block fw-semibold">{event.name}</span>
+                      <span
+                        className={`d-block small ${isActive ? "text-white-50" : "text-body-secondary"}`}
+                      >
+                        {new Date(event.time).toLocaleString()}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          </article>
-        ))}
+          </div>
+        </div>
+
+        <div className="col-lg-8">
+          {activeEvent ? (
+            <article
+              aria-labelledby={`checkpoint-tab-${activeIndex}`}
+              className="card shadow-sm"
+              id="storyboard-details"
+              role="tabpanel"
+              tabIndex={0}
+            >
+              <div className="card-body">
+                <div className="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
+                  <div>
+                    <h2 className="h4 mb-1">{activeEvent.name}</h2>
+                    <div className="text-body-secondary small">
+                      {activeEvent.slug} · {new Date(activeEvent.time).toLocaleString()}
+                    </div>
+                  </div>
+                  <span className="badge text-bg-dark">
+                    {activeEvent.viewport.width}×{activeEvent.viewport.height}
+                  </span>
+                </div>
+
+                <img
+                  alt={activeEvent.name}
+                  className="img-fluid rounded border checkpoint-image"
+                  src={activeEvent.resolvedScreenshotUrl}
+                />
+
+                <div className="row row-cols-1 row-cols-lg-2 g-3 mt-1">
+                  <div className="col">
+                    <h3 className="h6 text-uppercase text-body-secondary">ARIA snapshot</h3>
+                    <pre className="viewer-pre">{activeEvent.ariaSnapshot}</pre>
+                  </div>
+                  <div className="col">
+                    <h3 className="h6 text-uppercase text-body-secondary">Highlights</h3>
+                    <pre className="viewer-pre">
+                      {JSON.stringify(activeEvent.highlights, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ) : null}
+        </div>
       </section>
     </main>
   );
