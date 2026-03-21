@@ -11,6 +11,8 @@ This repository now contains the initial monorepo layout for visual-storyboard:
 - Install dependencies:
 
 ```bash
+curl -fsSL https://vite.plus | bash
+source ~/.bashrc
 vp install
 ```
 

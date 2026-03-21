@@ -7,6 +7,6 @@ export type {
   StoryboardHighlight,
   StoryboardOutputTransport,
   StoryboardViewport,
-} from "./types";
-export { FileTransport } from "./transports/file";
-export { StoryboardWriter } from "./writer";
+} from "./types.ts";
+export { FileTransport } from "./transports/file.ts";
+export { StoryboardWriter } from "./writer.ts";

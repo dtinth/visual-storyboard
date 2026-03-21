@@ -32,3 +32,10 @@ body {
   width: 100%;
   background: white;
 }
+
+.list-group [role="tab"]:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid rgba(13, 110, 253, 0.35);
+  outline-offset: 2px;
+}

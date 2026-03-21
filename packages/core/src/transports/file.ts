@@ -7,7 +7,7 @@ import type {
   StoryboardAssetReference,
   StoryboardEvent,
   StoryboardOutputTransport,
-} from "../types";
+} from "../types.ts";
 
 function toPosixPath(value: string) {
   return value.split(sep).join("/");

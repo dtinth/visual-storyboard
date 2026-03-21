@@ -6,9 +6,11 @@
   "scripts": {
     "ready": "vp fmt && vp lint && vp run test -r && vp run build -r",
     "dev": "vp run viewer#dev",
+    "test:e2e": "vp exec playwright test",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {

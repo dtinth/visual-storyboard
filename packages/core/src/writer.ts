@@ -2,7 +2,7 @@ import type {
   CreateStoryboardCheckpointOptions,
   StoryboardCheckpointEvent,
   StoryboardOutputTransport,
-} from "./types";
+} from "./types.ts";
 
 function slugifySegment(value: string, fallback: string) {
   const slug = value.toLowerCase().replace(/\W+/g, " ").trim().replace(/\s+/g, "-");
