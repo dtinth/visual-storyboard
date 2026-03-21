@@ -4,7 +4,8 @@ import { join } from "node:path";
 
 import { expect, test } from "vite-plus/test";
 
-import { FileTransport, StoryboardWriter } from "@visual-storyboard/core";
+import { FileTransport } from "visual-storyboard/transports/file";
+import { StoryboardWriter } from "visual-storyboard";
 
 test("the sample producer setup can create a viewer-compatible storyboard", async () => {
   const directory = await mkdtemp(join(tmpdir(), "visual-storyboard-e2e-"));

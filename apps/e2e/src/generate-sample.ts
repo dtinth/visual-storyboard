@@ -2,7 +2,8 @@ import { rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { FileTransport, StoryboardWriter } from "@visual-storyboard/core";
+import { FileTransport } from "visual-storyboard/transports/file";
+import { StoryboardWriter } from "visual-storyboard";
 
 const rootDirectory = dirname(fileURLToPath(import.meta.url));
 const publicDirectory = join(rootDirectory, "..", "public");

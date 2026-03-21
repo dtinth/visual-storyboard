@@ -1,4 +1,4 @@
-import type { StoryboardCheckpointEvent, StoryboardEvent } from "@visual-storyboard/core";
+import type { StoryboardCheckpointEvent, StoryboardEvent } from "visual-storyboard";
 
 export interface ResolvedStoryboardCheckpoint extends StoryboardCheckpointEvent {
   resolvedScreenshotUrl: string;

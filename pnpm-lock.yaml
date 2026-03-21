@@ -36,7 +36,7 @@ importers:
 
   apps/e2e:
     dependencies:
-      '@visual-storyboard/core':
+      visual-storyboard:
         specifier: workspace:*
         version: link:../../packages/core
     devDependencies:
@@ -55,9 +55,6 @@ importers:
 
   apps/viewer:
     dependencies:
-      '@visual-storyboard/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       bootstrap:
         specifier: 'catalog:'
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -67,6 +64,9 @@ importers:
       react-dom:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
+      visual-storyboard:
+        specifier: workspace:*
+        version: link:../../packages/core
     devDependencies:
       '@types/react':
         specifier: 19.2.14

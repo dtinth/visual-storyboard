@@ -1,5 +1,5 @@
 {
-  "name": "@visual-storyboard/core",
+  "name": "visual-storyboard",
   "version": "0.0.0",
   "description": "Core types, transport interfaces, writer helpers, and default transports for visual-storyboard.",
   "license": "MIT",
@@ -9,10 +9,8 @@
   ],
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
-    },
+    ".": "./dist/index.mjs",
+    "./transports/file": "./dist/transports/file.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

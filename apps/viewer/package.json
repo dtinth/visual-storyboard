@@ -5,15 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build",
     "preview": "vp preview",
     "test": "vp test"
   },
   "dependencies": {
-    "@visual-storyboard/core": "workspace:*",
     "bootstrap": "catalog:",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "visual-storyboard": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.2.14",

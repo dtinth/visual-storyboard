@@ -11,7 +11,7 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@visual-storyboard/core": "workspace:*"
+    "visual-storyboard": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

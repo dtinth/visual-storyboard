@@ -1,4 +1,4 @@
-# @visual-storyboard/core
+# visual-storyboard
 
 Core TypeScript building blocks for visual-storyboard:
 

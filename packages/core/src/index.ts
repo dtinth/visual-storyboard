@@ -8,5 +8,4 @@ export type {
   StoryboardOutputTransport,
   StoryboardViewport,
 } from "./types.ts";
-export { FileTransport } from "./transports/file.ts";
 export { StoryboardWriter } from "./writer.ts";
