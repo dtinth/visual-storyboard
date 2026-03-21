@@ -1,43 +1,38 @@
-# visual-storyboard monorepo
+# visual-storyboard
+
+A toolkit for capturing named screenshots during Playwright tests and viewing them as a visual storyboard.
 
 [![Example storyboard](https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/viewer-storyboards/viewer-supports-keyboard-navigation-between-frames/viewing-first-frame.png)](https://visual-storyboard.vercel.app/?url=https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/storyboards/example-spec-ts-swag-labs-checkout-flow.ndjson)
 
-This repository now contains the initial monorepo layout for visual-storyboard:
+_Click the image to open the live example in the viewer._
 
-- `packages/core` — reusable TypeScript types, transport interfaces, a storyboard writer, and a default file transport
-- `apps/viewer` — a React viewer that loads storyboard NDJSON from a URL and resolves asset URLs relative to that NDJSON document
-- `apps/example` — an example workspace showing how to integrate visual-storyboard into a Playwright end-to-end test suite
+## How it works
+
+In your Playwright tests, call `storyboard.capture("Step name", locator)` at key moments. After the test run, you get an NDJSON file containing the screenshots and accessibility snapshots for each captured step. Load that file in the viewer to browse the test run frame by frame.
+
+```ts
+test("checkout flow", async ({ page }) => {
+  await page.goto("/");
+  await storyboard.capture("Login page", page.getByRole("button", { name: "Login" }));
+
+  // ... interact with the page ...
+
+  await storyboard.capture("Order confirmation", page.locator(".confirmation"));
+});
+```
+
+## Packages
+
+- [`packages/core`](packages/core) — TypeScript types, transport interfaces, storyboard writer, and file transport
+- [`apps/viewer`](apps/viewer) — React viewer that loads a storyboard NDJSON from a URL
+- [`apps/example`](apps/example) — example Playwright suite testing the [Swag Labs](https://www.saucedemo.com) checkout flow
 
 ## Development
-
-- Install dependencies:
 
 ```bash
 curl -fsSL https://vite.plus | bash
 source ~/.bashrc
 vp install
-```
-
-- Run the checks:
-
-```bash
 vp check
-```
-
-- Run the tests:
-
-```bash
 vp test
-```
-
-- Start the viewer:
-
-```bash
-vp run viewer#dev
-```
-
-- Start the example app:
-
-```bash
-vp run example#dev
 ```
