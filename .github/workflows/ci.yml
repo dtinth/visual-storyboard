@@ -40,8 +40,8 @@ jobs:
           cache: true
           run-install: true
 
-      - name: Install Playwright browser
-        run: vp exec playwright install --with-deps chromium
+      - name: Set up Playwright
+        uses: ./.github/actions/setup-playwright
 
       - name: Run end-to-end tests
         run: vp run e2e
