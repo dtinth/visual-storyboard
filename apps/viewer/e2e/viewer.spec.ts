@@ -7,6 +7,7 @@ const STORYBOARD_URL =
 
 test("viewer supports keyboard navigation between frames", async ({ page }) => {
   await page.goto(`/?url=${encodeURIComponent(STORYBOARD_URL)}`);
+  await page.waitForLoadState("networkidle");
 
   const firstFrame = page.getByRole("tab", { name: /Login page/ });
   const secondFrame = page.getByRole("tab", { name: /Product listing/ });
