@@ -10,6 +10,7 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs",
+    "./integrations/playwright": "./dist/integrations/playwright.mjs",
     "./transports/file": "./dist/transports/file.mjs",
     "./package.json": "./package.json"
   },
