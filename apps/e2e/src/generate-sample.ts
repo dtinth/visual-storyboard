@@ -27,18 +27,24 @@ async function main() {
     transport: new FileTransport({ outputFile }),
   });
 
-  await writer.createCheckpoint("Landing state", {
+  await writer.writeInfo({ title: "Basic sample storyboard" });
+
+  await writer.createFrame("Landing state", {
     imageBuffer: sampleScreenshot("Landing state", "#dbeafe"),
     imageContentType: "image/svg+xml",
-    ariaSnapshot: '- document\n  - heading "Welcome" [level=1]\n  - button "Start"',
+    annotations: {
+      ariaSnapshot: '- document\n  - heading "Welcome" [level=1]\n  - button "Start"',
+    },
     highlights: [{ x: 120, y: 110, width: 280, height: 72, text: 'heading "Welcome"' }],
     viewport: { width: 960, height: 540 },
   });
 
-  await writer.createCheckpoint("Menu open", {
+  await writer.createFrame("Menu open", {
     imageBuffer: sampleScreenshot("Menu open", "#ede9fe"),
     imageContentType: "image/svg+xml",
-    ariaSnapshot: '- document\n  - navigation\n    - link "Dashboard"\n    - link "Settings"',
+    annotations: {
+      ariaSnapshot: '- document\n  - navigation\n    - link "Dashboard"\n    - link "Settings"',
+    },
     highlights: [{ x: 90, y: 130, width: 220, height: 180, text: "navigation" }],
     viewport: { width: 960, height: 540 },
   });

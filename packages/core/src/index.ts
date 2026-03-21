@@ -1,11 +1,14 @@
 export type {
-  CreateStoryboardCheckpointOptions,
+  CreateStoryboardFrameOptions,
   StoryboardAssetInput,
   StoryboardAssetReference,
-  StoryboardCheckpointEvent,
   StoryboardEvent,
+  StoryboardFrameEvent,
   StoryboardHighlight,
+  StoryboardInfoEvent,
   StoryboardOutputTransport,
   StoryboardViewport,
+  WriteStoryboardInfoOptions,
 } from "./types.ts";
 export { StoryboardWriter } from "./writer.ts";
+export type { StoryboardWriterOptions } from "./writer.ts";

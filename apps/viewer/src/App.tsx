@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { getNextCheckpointIndex } from "./checkpoint-navigation";
-import type { ResolvedStoryboardCheckpoint } from "./storyboard-data";
+import { getNextFrameIndex } from "./frame-navigation";
+import type { ResolvedStoryboardFrame } from "./storyboard-data";
 import { loadStoryboard } from "./storyboard-data";
 
 function useStoryboardUrl() {
@@ -13,11 +13,11 @@ function useStoryboardUrl() {
 
 export function App() {
   const storyboardUrl = useStoryboardUrl();
-  const [events, setEvents] = useState<ResolvedStoryboardCheckpoint[]>([]);
+  const [events, setEvents] = useState<ResolvedStoryboardFrame[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(Boolean(storyboardUrl));
-  const checkpointButtons = useRef<Array<HTMLButtonElement | null>>([]);
+  const frameButtons = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     if (!storyboardUrl) {
@@ -54,13 +54,13 @@ export function App() {
 
   const activeEvent = activeIndex >= 0 ? events[activeIndex] : undefined;
 
-  function handleCheckpointKeyDown(index: number, key: string) {
-    const nextIndex = getNextCheckpointIndex(index, events.length, key);
+  function handleFrameKeyDown(index: number, key: string) {
+    const nextIndex = getNextFrameIndex(index, events.length, key);
     if (nextIndex === index || nextIndex < 0) {
       return;
     }
     setActiveIndex(nextIndex);
-    checkpointButtons.current[nextIndex]?.focus();
+    frameButtons.current[nextIndex]?.focus();
   }
 
   return (
@@ -95,15 +95,15 @@ export function App() {
           <div className="card shadow-sm">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <h2 className="h5 mb-0">Checkpoints</h2>
+                <h2 className="h5 mb-0">Frames</h2>
                 <span className="badge text-bg-secondary">{events.length}</span>
               </div>
               <p className="text-body-secondary small mb-3">
                 Use <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>Home</kbd>, and <kbd>End</kbd> to move between
-                checkpoints.
+                frames.
               </p>
               <div
-                aria-label="Storyboard checkpoints"
+                aria-label="Storyboard frames"
                 aria-orientation="vertical"
                 className="list-group"
                 role="tablist"
@@ -114,24 +114,20 @@ export function App() {
                     <button
                       key={`${event.slug}-${event.time}`}
                       ref={(element) => {
-                        checkpointButtons.current[index] = element;
+                        frameButtons.current[index] = element;
                       }}
-                      aria-controls={`checkpoint-panel-${index}`}
+                      aria-controls={`frame-panel-${index}`}
                       aria-selected={isActive}
                       className={`list-group-item list-group-item-action text-start ${
                         isActive ? "active" : ""
                       }`}
-                      id={`checkpoint-tab-${index}`}
+                      id={`frame-tab-${index}`}
                       onClick={() => setActiveIndex(index)}
                       onKeyDown={(eventKey) => {
-                        const nextIndex = getNextCheckpointIndex(
-                          index,
-                          events.length,
-                          eventKey.key,
-                        );
+                        const nextIndex = getNextFrameIndex(index, events.length, eventKey.key);
                         if (nextIndex !== index) {
                           eventKey.preventDefault();
-                          handleCheckpointKeyDown(index, eventKey.key);
+                          handleFrameKeyDown(index, eventKey.key);
                         }
                       }}
                       role="tab"
@@ -155,7 +151,7 @@ export function App() {
         <div className="col-lg-8">
           {activeEvent ? (
             <article
-              aria-labelledby={`checkpoint-tab-${activeIndex}`}
+              aria-labelledby={`frame-tab-${activeIndex}`}
               className="card shadow-sm"
               id="storyboard-details"
               role="tabpanel"
@@ -176,15 +172,17 @@ export function App() {
 
                 <img
                   alt={activeEvent.name}
-                  className="img-fluid rounded border checkpoint-image"
+                  className="img-fluid rounded border frame-image"
                   src={activeEvent.resolvedScreenshotUrl}
                 />
 
                 <div className="row row-cols-1 row-cols-lg-2 g-3 mt-1">
-                  <div className="col">
-                    <h3 className="h6 text-uppercase text-body-secondary">ARIA snapshot</h3>
-                    <pre className="viewer-pre">{activeEvent.ariaSnapshot}</pre>
-                  </div>
+                  {activeEvent.annotations["ariaSnapshot"] ? (
+                    <div className="col">
+                      <h3 className="h6 text-uppercase text-body-secondary">ARIA snapshot</h3>
+                      <pre className="viewer-pre">{activeEvent.annotations["ariaSnapshot"]}</pre>
+                    </div>
+                  ) : null}
                   <div className="col">
                     <h3 className="h6 text-uppercase text-body-secondary">Highlights</h3>
                     <pre className="viewer-pre">

@@ -1,7 +1,7 @@
 const NEXT_KEYS = new Set(["ArrowDown", "ArrowRight"]);
 const PREVIOUS_KEYS = new Set(["ArrowUp", "ArrowLeft"]);
 
-export function getNextCheckpointIndex(currentIndex: number, total: number, key: string) {
+export function getNextFrameIndex(currentIndex: number, total: number, key: string) {
   if (total < 1) {
     return -1;
   }

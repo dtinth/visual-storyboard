@@ -1,6 +1,6 @@
-import type { StoryboardCheckpointEvent, StoryboardEvent } from "visual-storyboard";
+import type { StoryboardFrameEvent, StoryboardEvent } from "visual-storyboard";
 
-export interface ResolvedStoryboardCheckpoint extends StoryboardCheckpointEvent {
+export interface ResolvedStoryboardFrame extends StoryboardFrameEvent {
   resolvedScreenshotUrl: string;
 }
 
@@ -19,14 +19,14 @@ export function resolveStoryboardAssetUrl(documentUrl: string, assetUrl: string)
 export async function loadStoryboard(
   url: string,
   fetcher: typeof fetch = fetch,
-): Promise<ResolvedStoryboardCheckpoint[]> {
+): Promise<ResolvedStoryboardFrame[]> {
   const response = await fetcher(url);
   if (!response.ok) {
     throw new Error(`Unable to load storyboard from ${url}: ${response.status}`);
   }
   const document = await response.text();
   return parseNdjsonDocument(document)
-    .filter((event): event is StoryboardCheckpointEvent => event.type === "checkpoint")
+    .filter((event): event is StoryboardFrameEvent => event.type === "frame")
     .map((event) => ({
       ...event,
       resolvedScreenshotUrl: resolveStoryboardAssetUrl(url, event.screenshot.url),

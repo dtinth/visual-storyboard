@@ -4,7 +4,8 @@ import { join } from "node:path";
 
 import { expect, test } from "vite-plus/test";
 
-import { FileTransport, StoryboardWriter, type StoryboardEvent } from "../src";
+import { StoryboardWriter, type StoryboardEvent, type StoryboardFrameEvent } from "../src";
+import { FileTransport } from "../src/transports/file.ts";
 
 class MemoryTransport {
   readonly assets: Array<{ path: string; contentType: string; data: Uint8Array }> = [];
@@ -25,22 +26,20 @@ class MemoryTransport {
   }
 }
 
-test("StoryboardWriter emits unique checkpoint events through the transport", async () => {
+test("StoryboardWriter emits unique frame events through the transport", async () => {
   const transport = new MemoryTransport();
   const writer = new StoryboardWriter({
     storyboardId: "Checkout flow",
     transport,
   });
 
-  await writer.createCheckpoint("Open dialog", {
+  await writer.createFrame("Open dialog", {
     imageBuffer: Buffer.from("first"),
-    ariaSnapshot: "body",
     highlights: [{ x: 1, y: 2, width: 3, height: 4, text: "dialog" }],
     viewport: { width: 1280, height: 720 },
   });
-  const second = await writer.createCheckpoint("!!!", {
+  const second = await writer.createFrame("!!!", {
     imageBuffer: Buffer.from("second"),
-    ariaSnapshot: "body > dialog",
     highlights: [],
     viewport: { width: 1280, height: 720 },
   });
@@ -48,8 +47,10 @@ test("StoryboardWriter emits unique checkpoint events through the transport", as
   expect(transport.assets).toHaveLength(2);
   expect(transport.events).toHaveLength(2);
   expect(transport.assets[0]?.path).toBe("checkout-flow/open-dialog.png");
-  expect(second.slug).toBe("checkpoint");
-  expect(transport.events[1]?.screenshot.url).toBe("checkout-flow/checkpoint.png");
+  expect(second.slug).toBe("frame");
+  expect((transport.events[1] as StoryboardFrameEvent)?.screenshot.url).toBe(
+    "checkout-flow/frame.png",
+  );
 });
 
 test("FileTransport writes NDJSON events and binary assets using relative URLs", async () => {
@@ -60,10 +61,9 @@ test("FileTransport writes NDJSON events and binary assets using relative URLs",
     transport: new FileTransport({ outputFile }),
   });
 
-  const event = await writer.createCheckpoint("First step", {
+  const event = await writer.createFrame("First step", {
     imageBuffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>'),
     imageContentType: "image/svg+xml",
-    ariaSnapshot: "body",
     highlights: [],
     viewport: { width: 800, height: 600 },
   });
@@ -75,7 +75,7 @@ test("FileTransport writes NDJSON events and binary assets using relative URLs",
   const [line] = ndjson.trim().split("\n");
   expect(line).toBeTruthy();
   expect(JSON.parse(line)).toMatchObject({
-    type: "checkpoint",
+    type: "frame",
     screenshot: { url: "sample-storyboard/first-step.svg" },
   });
 

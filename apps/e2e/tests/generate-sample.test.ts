@@ -15,10 +15,9 @@ test("the sample producer setup can create a viewer-compatible storyboard", asyn
     transport: new FileTransport({ outputFile }),
   });
 
-  await writer.createCheckpoint("Landing state", {
+  await writer.createFrame("Landing state", {
     imageBuffer: Buffer.from("<svg></svg>"),
     imageContentType: "image/svg+xml",
-    ariaSnapshot: "body",
     highlights: [],
     viewport: { width: 960, height: 540 },
   });
@@ -26,7 +25,7 @@ test("the sample producer setup can create a viewer-compatible storyboard", asyn
 
   const ndjson = await readFile(outputFile, "utf8");
   expect(JSON.parse(ndjson.trim())).toMatchObject({
-    type: "checkpoint",
+    type: "frame",
     screenshot: { url: "basic/landing-state.svg" },
   });
 });
