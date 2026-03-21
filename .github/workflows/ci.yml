@@ -46,6 +46,14 @@ jobs:
       - name: Run end-to-end tests
         run: vp run e2e
 
+      - name: Publish storyboard to object storage
+        uses: ./.github/actions/publish-storyboard
+        if: always() && hashFiles('apps/viewer/storyboards/**/*') != ''
+        with:
+          storyboard-dir: apps/viewer/storyboards
+          publish-path: ${{ github.repository }}/${{ github.ref_name }}/viewer-storyboards
+          secret-access-key: ${{ secrets.RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY }}
+
   e2e-example:
     runs-on: ubuntu-latest
     steps:
@@ -71,41 +79,9 @@ jobs:
         run: vp exec playwright test
 
       - name: Publish storyboard to object storage
-        continue-on-error: true
+        uses: ./.github/actions/publish-storyboard
         if: always() && hashFiles('apps/example/public/storyboards/**/*') != ''
-        working-directory: apps/example
-        run: |
-          # Install Rclone
-          curl https://rclone.org/install.sh | sudo bash
-
-          # Upload storyboard files
-          rclone copy public/storyboards/ publish:$PUBLISH_BUCKET/$PUBLISH_KEY/storyboards/ --progress
-
-          # Print storyboard URL for CI logs
-          STORYBOARD_BASE="$STORYBOARD_URL_PREFIX/$PUBLISH_KEY/storyboards"
-          echo "📖 Storyboard published: $STORYBOARD_BASE"
-
-          # Add to step summary
-          echo "## 📖 Storyboard Published" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          VIEWER_BASE="https://visual-storyboard.vercel.app/?url=$STORYBOARD_BASE"
-          for f in public/storyboards/*.ndjson; do
-            NAME=$(basename "$f")
-            STORYBOARD_URL="$STORYBOARD_BASE/$NAME"
-            VIEWER_URL="$VIEWER_BASE/$NAME"
-            echo "- 🔗 [View in viewer]($VIEWER_URL) · [Raw NDJSON]($STORYBOARD_URL)" >> $GITHUB_STEP_SUMMARY
-          done
-        env:
-          PUBLISH_BUCKET: storyboard
-          PUBLISH_KEY: ${{ github.repository }}/${{ github.ref_name }}
-          STORYBOARD_URL_PREFIX: https://storyboard.t3.storage.dev
-          RCLONE_CONFIG_PUBLISH_TYPE: s3
-          RCLONE_CONFIG_PUBLISH_PROVIDER: Other
-          RCLONE_CONFIG_PUBLISH_REGION: auto
-          RCLONE_CONFIG_PUBLISH_ACL: public-read
-          RCLONE_CONFIG_PUBLISH_ENDPOINT: https://t3.storage.dev
-          RCLONE_CONFIG_PUBLISH_ACCESS_KEY_ID: tid_eBdFGUJbwTSABQoyoitUdZeSlVhrUhjIEkEICMLZeXecPlBHVF
-          RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY: ${{ secrets.RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY }}
+        with:
+          storyboard-dir: apps/example/public/storyboards
+          publish-path: ${{ github.repository }}/${{ github.ref_name }}/storyboards
+          secret-access-key: ${{ secrets.RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY }}

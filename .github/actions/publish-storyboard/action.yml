@@ -1,0 +1,47 @@
+name: Publish Storyboard
+description: Upload storyboard files to Tigris object storage and add links to step summary
+
+inputs:
+  storyboard-dir:
+    description: Path to the storyboards directory (relative to workspace root)
+    required: true
+  publish-path:
+    description: Full path within the bucket (e.g. "owner/repo/branch/storyboards")
+    required: true
+  secret-access-key:
+    description: Rclone S3 secret access key
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install Rclone and upload storyboards
+      shell: bash
+      run: |
+        curl https://rclone.org/install.sh | sudo bash
+
+        rclone copy "${{ github.workspace }}/${{ inputs.storyboard-dir }}" \
+          publish:storyboard/${{ inputs.publish-path }}/ --progress
+
+        STORYBOARD_BASE="https://storyboard.t3.storage.dev/${{ inputs.publish-path }}"
+        echo "📖 Storyboard published: $STORYBOARD_BASE"
+
+        echo "## 📖 Storyboard Published" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        for f in "${{ github.workspace }}/${{ inputs.storyboard-dir }}"/*.ndjson; do
+          NAME=$(basename "$f")
+          STORYBOARD_URL="$STORYBOARD_BASE/$NAME"
+          VIEWER_URL="https://visual-storyboard.vercel.app/?url=$STORYBOARD_URL"
+          echo "- 🔗 [View in viewer]($VIEWER_URL) · [Raw NDJSON]($STORYBOARD_URL)" >> $GITHUB_STEP_SUMMARY
+        done
+      env:
+        RCLONE_CONFIG_PUBLISH_TYPE: s3
+        RCLONE_CONFIG_PUBLISH_PROVIDER: Other
+        RCLONE_CONFIG_PUBLISH_REGION: auto
+        RCLONE_CONFIG_PUBLISH_ACL: public-read
+        RCLONE_CONFIG_PUBLISH_ENDPOINT: https://t3.storage.dev
+        RCLONE_CONFIG_PUBLISH_ACCESS_KEY_ID: tid_eBdFGUJbwTSABQoyoitUdZeSlVhrUhjIEkEICMLZeXecPlBHVF
+        RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY: ${{ inputs.secret-access-key }}
