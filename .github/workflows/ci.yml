@@ -70,9 +70,8 @@ jobs:
       - name: Build packages
         run: vp run visual-storyboard#build
 
-      - name: Install Playwright browser
-        working-directory: apps/example
-        run: vp exec playwright install --with-deps chromium
+      - name: Set up Playwright
+        uses: ./.github/actions/setup-playwright
 
       - name: Run Swag Labs example tests
         working-directory: apps/example
