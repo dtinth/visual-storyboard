@@ -45,3 +45,65 @@ jobs:
 
       - name: Run end-to-end tests
         run: vp run e2e
+
+  e2e-example:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: "24"
+          cache: true
+          run-install: true
+
+      - name: Build packages
+        run: vp run visual-storyboard#build
+
+      - name: Install Playwright browser
+        working-directory: apps/example
+        run: vp exec playwright install --with-deps chromium
+
+      - name: Run Swag Labs example tests
+        working-directory: apps/example
+        run: vp exec playwright test
+
+      - name: Publish storyboard to object storage
+        continue-on-error: true
+        if: always() && hashFiles('apps/example/public/storyboards/**/*') != ''
+        working-directory: apps/example
+        run: |
+          # Install Rclone
+          curl https://rclone.org/install.sh | sudo bash
+
+          # Upload storyboard files
+          rclone copy public/storyboards/ publish:$PUBLISH_BUCKET/$PUBLISH_KEY/storyboards/ --progress
+
+          # Print storyboard URL for CI logs
+          STORYBOARD_BASE="$STORYBOARD_URL_PREFIX/$PUBLISH_KEY/storyboards"
+          echo "📖 Storyboard published: $STORYBOARD_BASE"
+
+          # Add to step summary
+          echo "## 📖 Storyboard Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          for f in public/storyboards/*.ndjson; do
+            NAME=$(basename "$f")
+            URL="$STORYBOARD_BASE/$NAME"
+            echo "- 🔗 [$NAME]($URL)" >> $GITHUB_STEP_SUMMARY
+          done
+        env:
+          PUBLISH_BUCKET: storyboard
+          PUBLISH_KEY: ${{ github.repository }}/${{ github.ref_name }}
+          STORYBOARD_URL_PREFIX: https://storyboard.t3.storage.dev
+          RCLONE_CONFIG_PUBLISH_TYPE: s3
+          RCLONE_CONFIG_PUBLISH_PROVIDER: Other
+          RCLONE_CONFIG_PUBLISH_REGION: auto
+          RCLONE_CONFIG_PUBLISH_ACL: public-read
+          RCLONE_CONFIG_PUBLISH_ENDPOINT: https://t3.storage.dev
+          RCLONE_CONFIG_PUBLISH_ACCESS_KEY_ID: tid_eBdFGUJbwTSABQoyoitUdZeSlVhrUhjIEkEICMLZeXecPlBHVF
+          RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY: ${{ secrets.RCLONE_CONFIG_PUBLISH_SECRET_ACCESS_KEY }}
