@@ -1,29 +1,39 @@
-# Vite+ Monorepo Starter
+# visual-storyboard monorepo
 
-A starter for creating a Vite+ monorepo.
+This repository now contains the initial monorepo layout for visual-storyboard:
+
+- `packages/core` — reusable TypeScript types, transport interfaces, a storyboard writer, and a default file transport
+- `apps/viewer` — a React viewer that loads storyboard NDJSON from a URL and resolves asset URLs relative to that NDJSON document
+- `apps/e2e` — a small sample producer workspace that generates storyboard fixtures for local development and integration testing
 
 ## Development
 
-- Check everything is ready:
+- Install dependencies:
 
 ```bash
-vp run ready
+vp install
+```
+
+- Run the checks:
+
+```bash
+vp check
 ```
 
 - Run the tests:
 
 ```bash
-vp run test -r
+vp test
 ```
 
-- Build the monorepo:
+- Start the viewer:
 
 ```bash
-vp run build -r
+vp run viewer#dev
 ```
 
-- Run the development server:
+- Start the sample producer:
 
 ```bash
-vp run dev
+vp run e2e#dev
 ```
