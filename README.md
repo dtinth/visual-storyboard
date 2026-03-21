@@ -1,5 +1,7 @@
 # visual-storyboard monorepo
 
+[![Example storyboard](https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/viewer-storyboards/viewer-supports-keyboard-navigation-between-frames/viewing-first-frame.png)](https://visual-storyboard.vercel.app/?url=https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/storyboards/example-spec-ts-swag-labs-checkout-flow.ndjson)
+
 This repository now contains the initial monorepo layout for visual-storyboard:
 
 - `packages/core` — reusable TypeScript types, transport interfaces, a storyboard writer, and a default file transport
