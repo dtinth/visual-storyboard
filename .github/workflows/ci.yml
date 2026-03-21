@@ -91,10 +91,12 @@ jobs:
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          VIEWER_BASE="https://visual-storyboard.vercel.app/?url=$STORYBOARD_BASE"
           for f in public/storyboards/*.ndjson; do
             NAME=$(basename "$f")
-            URL="$STORYBOARD_BASE/$NAME"
-            echo "- 🔗 [$NAME]($URL)" >> $GITHUB_STEP_SUMMARY
+            STORYBOARD_URL="$STORYBOARD_BASE/$NAME"
+            VIEWER_URL="$VIEWER_BASE/$NAME"
+            echo "- 🔗 [View in viewer]($VIEWER_URL) · [Raw NDJSON]($STORYBOARD_URL)" >> $GITHUB_STEP_SUMMARY
           done
         env:
           PUBLISH_BUCKET: storyboard
