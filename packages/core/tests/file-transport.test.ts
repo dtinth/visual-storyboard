@@ -4,10 +4,10 @@ import { join } from "node:path";
 
 import { expect, test } from "vite-plus/test";
 
-import { FileTransport } from "visual-storyboard/transports/file";
-import { StoryboardWriter } from "visual-storyboard";
+import { FileTransport } from "../src/transports/file.ts";
+import { StoryboardWriter } from "../src";
 
-test("the sample producer setup can create a viewer-compatible storyboard", async () => {
+test("FileTransport writes a viewer-compatible storyboard", async () => {
   const directory = await mkdtemp(join(tmpdir(), "visual-storyboard-e2e-"));
   const outputFile = join(directory, "storyboards", "basic.ndjson");
   const writer = new StoryboardWriter({
