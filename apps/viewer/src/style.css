@@ -9,18 +9,50 @@ body,
   margin: 0;
 }
 
-/* Sidebar fixed width; stacks vertically on small screens */
+/* Sidebar fixed width on desktop */
 .sidebar-panel {
   width: 280px;
   min-width: 280px;
   flex-shrink: 0;
 }
 
+/* Mobile: sidebar becomes a horizontal filmstrip above the main content */
 @media (max-width: 991.98px) {
-  .app-layout .sidebar-panel {
+  .sidebar-panel {
     width: 100%;
     min-width: 0;
-    height: 220px;
+    height: 160px;
+    border-right: 0 !important;
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+  }
+
+  .sidebar-frame-list {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sidebar-frame-list .list-group-item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    border-top: 0 !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Visually hide frame name (keep it in the accessibility tree for tab labels) */
+  .sidebar-frame-list .frame-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 

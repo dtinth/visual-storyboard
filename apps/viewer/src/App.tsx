@@ -113,7 +113,7 @@ export function App() {
   }
 
   return (
-    <div className="d-flex vh-100 overflow-hidden">
+    <div className="d-flex flex-column flex-lg-row vh-100 overflow-hidden">
       {/* Sidebar */}
       <aside className="sidebar-panel d-flex flex-column border-end overflow-hidden">
         <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom flex-shrink-0">
@@ -131,7 +131,7 @@ export function App() {
         <div
           aria-label="Storyboard frames"
           aria-orientation="vertical"
-          className="list-group list-group-flush overflow-y-auto flex-grow-1"
+          className="sidebar-frame-list list-group list-group-flush overflow-y-auto flex-grow-1"
           role="tablist"
         >
           {frames.map((frame, index) => {
