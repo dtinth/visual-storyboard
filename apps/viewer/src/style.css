@@ -2,35 +2,62 @@
   color-scheme: light dark;
 }
 
-body {
-  margin: 0;
-  background: #f8f9fa;
-}
-
+html,
+body,
 #app {
-  min-height: 100vh;
+  height: 100%;
+  margin: 0;
 }
 
-.viewer-url {
-  display: inline-block;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  background: rgba(33, 37, 41, 0.08);
-  color: inherit;
+/* Sidebar fixed width; stacks vertically on small screens */
+.sidebar-panel {
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 991.98px) {
+  .app-layout .sidebar-panel {
+    width: 100%;
+    min-width: 0;
+    height: 220px;
+  }
+}
+
+/* Frame number column fixed width */
+.frame-number {
+  min-width: 1.5rem;
+}
+
+/* Frame thumbnail */
+.frame-thumb {
+  width: 56px;
+  height: 36px;
+}
+
+/* Clamp frame name to 2 lines */
+.frame-name {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Screenshot: never upscale, scale down if needed */
+.frame-screenshot {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
 }
 
 .viewer-pre {
   margin: 0;
   padding: 1rem;
   border-radius: 0.75rem;
-  background: rgba(33, 37, 41, 0.08);
+  background: rgba(128, 128, 128, 0.1);
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.frame-image {
-  width: 100%;
-  background: white;
 }
 
 .list-group [role="tab"]:focus-visible {
