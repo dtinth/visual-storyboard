@@ -86,10 +86,7 @@ export function App() {
 
   if (!storyboardUrl) {
     return (
-      <div
-        className="d-flex align-items-center justify-content-center min-vh-100"
-        data-bs-theme="dark"
-      >
+      <div className="d-flex align-items-center justify-content-center min-vh-100">
         <div className="card shadow-lg" style={{ width: "100%", maxWidth: "480px" }}>
           <div className="card-body p-4">
             <h1 className="h4 fw-semibold mb-2">visual-storyboard</h1>
@@ -116,7 +113,7 @@ export function App() {
   }
 
   return (
-    <div className="d-flex vh-100 overflow-hidden" data-bs-theme="dark">
+    <div className="d-flex vh-100 overflow-hidden">
       {/* Sidebar */}
       <aside className="sidebar-panel d-flex flex-column border-end overflow-hidden">
         <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom flex-shrink-0">
