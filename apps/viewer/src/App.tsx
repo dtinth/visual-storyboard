@@ -181,20 +181,11 @@ export function App() {
             Powered by{" "}
             <a
               className="text-body-tertiary"
-              href="https://visual-storyboard.vercel.app/"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              visual-storyboard
-            </a>{" "}
-            ·{" "}
-            <a
-              className="text-body-tertiary"
               href="https://github.com/dtinth/visual-storyboard"
               rel="noopener noreferrer"
               target="_blank"
             >
-              GitHub
+              visual-storyboard
             </a>
           </span>
         </div>
@@ -221,11 +212,30 @@ export function App() {
               </span>
             </div>
 
-            <img
-              alt={activeFrame.name}
-              className="rounded border frame-screenshot"
-              src={activeFrame.resolvedScreenshotUrl}
-            />
+            <div className="d-flex">
+              <div className="position-relative overflow-hidden rounded border">
+                <img
+                  alt={activeFrame.name}
+                  className="frame-screenshot d-block"
+                  src={activeFrame.resolvedScreenshotUrl}
+                />
+                {activeFrame.highlights.map((h, i) => (
+                  <div
+                    key={i}
+                    className="position-absolute"
+                    title={h.text}
+                    style={{
+                      left: `${(h.x / activeFrame.viewport.width) * 100}%`,
+                      top: `${(h.y / activeFrame.viewport.height) * 100}%`,
+                      width: `${(h.width / activeFrame.viewport.width) * 100}%`,
+                      height: `${(h.height / activeFrame.viewport.height) * 100}%`,
+                      outline: "2px dotted rgba(255, 100, 0, 0.8)",
+                      boxShadow: "0 0 8px 2px rgba(255, 100, 0, 0.5)",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
 
             {Object.entries(activeFrame.annotations).map(([key, value]) => (
               <div key={key} className="mt-4">
@@ -233,15 +243,6 @@ export function App() {
                 <pre className="viewer-pre">{value}</pre>
               </div>
             ))}
-
-            {activeFrame.highlights.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-uppercase small fw-semibold text-body-secondary mb-2">
-                  Highlights
-                </h3>
-                <pre className="viewer-pre">{JSON.stringify(activeFrame.highlights, null, 2)}</pre>
-              </div>
-            )}
           </div>
         ) : (
           !loading && (
