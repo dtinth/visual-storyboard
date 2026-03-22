@@ -109,7 +109,7 @@ import { FileTransport } from "visual-storyboard/transports/file";
 
 const writer = new StoryboardWriter({
   storyboardId: "my-test",
-  transport: new FileTransport({ outputFile: "out/storyboard.ndjson" }),
+  transport: new FileTransport({ outputDir: "out/my-storyboard" }),
 });
 
 await writer.writeInfo({ title: "My test", annotations: { branch: "main" } });
@@ -125,18 +125,14 @@ await writer.finalize();
 
 ### `FileTransport`
 
-Writes assets alongside the NDJSON file on disk. Asset URLs in the NDJSON are relative to the NDJSON file, so the directory is self-contained and portable.
+Writes everything into a single directory: `storyboard.ndjson` plus screenshot assets. Asset URLs in the NDJSON are relative, so the directory is fully self-contained and portable.
 
 ```ts
 import { FileTransport } from "visual-storyboard/transports/file";
 
-new FileTransport({ outputFile: "out/storyboard.ndjson" });
-// assets go to out/<storyboard-slug>/<frame-slug>.png by default
-
-new FileTransport({
-  outputFile: "out/storyboard.ndjson",
-  assetDirectory: "out/assets", // override asset directory
-});
+new FileTransport({ outputDir: "out/my-storyboard" });
+// out/my-storyboard/storyboard.ndjson
+// out/my-storyboard/<frame-slug>.png
 ```
 
 ### Custom transports

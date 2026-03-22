@@ -55,10 +55,10 @@ test("StoryboardWriter emits unique frame events through the transport", async (
 
 test("FileTransport writes NDJSON events and binary assets using relative URLs", async () => {
   const directory = await mkdtemp(join(tmpdir(), "visual-storyboard-core-"));
-  const outputFile = join(directory, "storyboards", "basic.ndjson");
+  const outputDir = join(directory, "storyboards", "sample-storyboard");
   const writer = new StoryboardWriter({
     storyboardId: "Sample Storyboard",
-    transport: new FileTransport({ outputFile }),
+    transport: new FileTransport({ outputDir }),
   });
 
   const event = await writer.createFrame("First step", {
@@ -69,16 +69,16 @@ test("FileTransport writes NDJSON events and binary assets using relative URLs",
   });
   await writer.finalize();
 
-  expect(event.screenshot.url).toBe("sample-storyboard/first-step.svg");
+  expect(event.screenshot.url).toBe("first-step.svg");
 
-  const ndjson = await readFile(outputFile, "utf8");
+  const ndjson = await readFile(join(outputDir, "storyboard.ndjson"), "utf8");
   const [line] = ndjson.trim().split("\n");
   expect(line).toBeTruthy();
   expect(JSON.parse(line)).toMatchObject({
     type: "frame",
-    screenshot: { url: "sample-storyboard/first-step.svg" },
+    screenshot: { url: "first-step.svg" },
   });
 
-  const assetFile = join(directory, "storyboards", "sample-storyboard", "first-step.svg");
+  const assetFile = join(outputDir, "first-step.svg");
   expect(await readFile(assetFile, "utf8")).toContain("<svg");
 });

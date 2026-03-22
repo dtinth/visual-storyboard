@@ -50,7 +50,7 @@ export interface StoryboardWriterOptions {
  * ```ts
  * const writer = new StoryboardWriter({
  *   storyboardId: "user-login",
- *   transport: new FileTransport({ outputFile: "out/storyboard.ndjson" }),
+ *   transport: new FileTransport({ outputDir: "out/my-storyboard" }),
  * });
  *
  * await writer.writeInfo({ title: "User login flow" });

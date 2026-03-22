@@ -9,10 +9,10 @@ import { StoryboardWriter } from "../src";
 
 test("FileTransport writes a viewer-compatible storyboard", async () => {
   const directory = await mkdtemp(join(tmpdir(), "visual-storyboard-e2e-"));
-  const outputFile = join(directory, "storyboards", "basic.ndjson");
+  const outputDir = join(directory, "storyboards", "basic");
   const writer = new StoryboardWriter({
     storyboardId: "Basic",
-    transport: new FileTransport({ outputFile }),
+    transport: new FileTransport({ outputDir }),
   });
 
   await writer.createFrame("Landing state", {
@@ -23,9 +23,9 @@ test("FileTransport writes a viewer-compatible storyboard", async () => {
   });
   await writer.finalize();
 
-  const ndjson = await readFile(outputFile, "utf8");
+  const ndjson = await readFile(join(outputDir, "storyboard.ndjson"), "utf8");
   expect(JSON.parse(ndjson.trim())).toMatchObject({
     type: "frame",
-    screenshot: { url: "basic/landing-state.svg" },
+    screenshot: { url: "landing-state.svg" },
   });
 });

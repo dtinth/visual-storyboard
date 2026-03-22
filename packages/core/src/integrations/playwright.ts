@@ -90,7 +90,7 @@ export function createPlaywrightFileOutputTransportFactory(
       .replace(/\W+/g, " ")
       .trim()
       .replace(/\s+/g, "-");
-    return new FileTransport({ outputFile: join(outputDir, `${slug}.ndjson`) });
+    return new FileTransport({ outputDir: join(outputDir, slug) });
   };
 }
 

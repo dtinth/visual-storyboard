@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, appendFile, writeFile } from "node:fs/promises";
-import { dirname, join, relative, sep } from "node:path";
+import { basename, dirname, join, relative, sep } from "node:path";
 
 import type {
   StoryboardAssetInput,
@@ -14,8 +14,8 @@ function toPosixPath(value: string) {
 }
 
 export interface FileTransportOptions {
-  outputFile: string;
-  assetDirectory?: string;
+  /** Directory that will contain `storyboard.ndjson` and all screenshot assets. */
+  outputDir: string;
 }
 
 export class FileTransport implements StoryboardOutputTransport {
@@ -23,12 +23,12 @@ export class FileTransport implements StoryboardOutputTransport {
   readonly assetDirectory: string;
 
   constructor(options: FileTransportOptions) {
-    this.outputFile = options.outputFile;
-    this.assetDirectory = options.assetDirectory ?? dirname(options.outputFile);
+    this.outputFile = join(options.outputDir, "storyboard.ndjson");
+    this.assetDirectory = options.outputDir;
   }
 
   async writeAsset(asset: StoryboardAssetInput): Promise<StoryboardAssetReference> {
-    const targetFile = join(this.assetDirectory, asset.path);
+    const targetFile = join(this.assetDirectory, basename(asset.path));
     await mkdir(dirname(targetFile), { recursive: true });
     await writeFile(targetFile, asset.data);
     const sha256 = createHash("sha256").update(asset.data).digest("hex");

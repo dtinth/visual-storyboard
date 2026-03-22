@@ -4,9 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate": "node --experimental-strip-types src/generate-sample.ts",
-    "dev": "vp run generate && vp dev --port 4174",
-    "build": "vp run generate && tsc && vp build",
+    "dev": "vp dev --port 4174",
+    "build": "tsc && vp build",
     "preview": "vp preview --port 4174",
     "test": "vp test",
     "test:e2e": "vp exec playwright test"
