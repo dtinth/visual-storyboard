@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { storyboard } from "./support";
 
 const STORYBOARD_URL =
-  "https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/storyboards/example-spec-ts-swag-labs-checkout-flow.ndjson";
+  "https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/storyboards/example-spec-ts-swag-labs-checkout-flow/storyboard.ndjson";
 
 test("viewer works on mobile screen", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
