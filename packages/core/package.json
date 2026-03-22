@@ -1,6 +1,6 @@
 {
   "name": "visual-storyboard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Core types, transport interfaces, writer helpers, and default transports for visual-storyboard.",
   "license": "MIT",
   "repository": {
