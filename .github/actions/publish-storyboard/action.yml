@@ -18,9 +18,7 @@ runs:
     - name: Install Rclone and upload storyboards
       shell: bash
       run: |
-        curl https://rclone.org/install.sh | sudo bash
-
-        rclone copy "${{ github.workspace }}/${{ inputs.storyboard-dir }}" \
+        mise exec rclone@1.73.2 -- rclone copy "${{ github.workspace }}/${{ inputs.storyboard-dir }}" \
           publish:storyboard/${{ inputs.publish-path }}/ --progress
 
         STORYBOARD_BASE="https://storyboard.t3.storage.dev/${{ inputs.publish-path }}"
