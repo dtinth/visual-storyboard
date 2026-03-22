@@ -18,11 +18,21 @@ The quickest way to get started. Create a support file:
 // e2e/support.ts
 import { test } from "@playwright/test";
 import { PlaywrightStoryboard } from "visual-storyboard/integrations/playwright";
-import { FileTransport } from "visual-storyboard/transports/file";
+
+export const storyboard = new PlaywrightStoryboard({ test }).install();
+```
+
+By default storyboards are written to `test-storyboards/<slug>.ndjson` next to `test-results/`. To write elsewhere, pass a custom transport factory:
+
+```ts
+import {
+  PlaywrightStoryboard,
+  createPlaywrightFileOutputTransportFactory,
+} from "visual-storyboard/integrations/playwright";
 
 export const storyboard = new PlaywrightStoryboard({
   test,
-  transport: (testInfo) => new FileTransport({ outputFile: `out/${testInfo.title}.ndjson` }),
+  transport: createPlaywrightFileOutputTransportFactory("my-storyboards"),
 }).install();
 ```
 
@@ -47,11 +57,12 @@ After each test the integration automatically captures a final "End of test" fra
 
 ### `PlaywrightStoryboardOptions`
 
-| Option          | Type                                                                   | Description                                                                       |
-| --------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `transport`     | `StoryboardOutputTransport \| (testInfo) => StoryboardOutputTransport` | Transport instance or per-test factory                                            |
-| `enabled`       | `() => boolean`                                                        | Return `false` to disable capture (e.g. based on an env var)                      |
-| `beforeCapture` | `(locator: LocatorLike) => Promise<void>`                              | Hook called before each locator capture — use it to wait for animations to settle |
+| Option          | Type                                                            | Description                                                                                                             |
+| --------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `test`          | `TestLike`                                                      | The Playwright `test` object (required)                                                                                 |
+| `transport`     | `StoryboardOutputTransport \| PlaywrightOutputTransportFactory` | Transport instance or per-test factory. Defaults to `defaultPlaywrightOutputTransportFactory` (`test-storyboards/` dir) |
+| `enabled`       | `() => boolean`                                                 | Return `false` to disable capture (e.g. based on an env var)                                                            |
+| `beforeCapture` | `(locator) => Promise<void>`                                    | Hook called before each locator capture — use it to wait for animations to settle                                       |
 
 ---
 

@@ -1,4 +1,7 @@
+import { join } from "node:path";
+
 import type { StoryboardOutputTransport } from "../types.ts";
+import { FileTransport } from "../transports/file.ts";
 import { StoryboardWriter } from "../writer.ts";
 
 /**
@@ -67,6 +70,37 @@ export interface TestLike<
   info(): TTestInfo;
 }
 
+/** A per-test factory that receives `TestInfo` and returns a transport. */
+export type PlaywrightOutputTransportFactory<TTestInfo extends TestInfoLike = TestInfoLike> = (
+  testInfo: TTestInfo,
+) => StoryboardOutputTransport;
+
+/**
+ * Creates a {@link PlaywrightOutputTransportFactory} that writes each test's
+ * storyboard to `<outputDir>/<slug>.ndjson`, where the slug is derived from
+ * `testInfo.titlePath`.
+ */
+export function createPlaywrightFileOutputTransportFactory(
+  outputDir: string,
+): PlaywrightOutputTransportFactory {
+  return (testInfo) => {
+    const slug = testInfo.titlePath
+      .join(" ")
+      .toLowerCase()
+      .replace(/\W+/g, " ")
+      .trim()
+      .replace(/\s+/g, "-");
+    return new FileTransport({ outputFile: join(outputDir, `${slug}.ndjson`) });
+  };
+}
+
+/**
+ * The default transport factory used when `transport` is not specified.
+ * Writes to `test-storyboards/<slug>.ndjson` relative to `process.cwd()`.
+ */
+export const defaultPlaywrightOutputTransportFactory: PlaywrightOutputTransportFactory =
+  createPlaywrightFileOutputTransportFactory("test-storyboards");
+
 export interface PlaywrightStoryboardOptions<
   TTestInfo extends TestInfoLike = TestInfoLike,
   TPage extends PageLike = PageLike,
@@ -78,8 +112,11 @@ export interface PlaywrightStoryboardOptions<
   /**
    * Transport instance, or a factory called once per test.
    * Use a factory to give each test its own output file.
+   *
+   * Defaults to {@link defaultPlaywrightOutputTransportFactory}, which writes
+   * to `test-storyboards/<slug>.ndjson` relative to `process.cwd()`.
    */
-  transport: StoryboardOutputTransport | ((testInfo: TTestInfo) => StoryboardOutputTransport);
+  transport?: StoryboardOutputTransport | PlaywrightOutputTransportFactory<TTestInfo>;
   /**
    * Return `false` to disable capture entirely, e.g. based on an env variable.
    * Defaults to always enabled.
@@ -154,10 +191,9 @@ export class PlaywrightStoryboard<
     // oxlint-disable-next-line no-empty-pattern -- Playwright requires object destructuring
     test.beforeEach(async ({}, testInfo) => {
       if (this.options.enabled && !this.options.enabled()) return;
+      const { transport: transportOption = defaultPlaywrightOutputTransportFactory } = this.options;
       const transport =
-        typeof this.options.transport === "function"
-          ? this.options.transport(testInfo)
-          : this.options.transport;
+        typeof transportOption === "function" ? transportOption(testInfo) : transportOption;
       const writer = new StoryboardWriter({
         storyboardId: testInfo.title,
         transport,
