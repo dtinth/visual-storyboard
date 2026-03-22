@@ -55,6 +55,37 @@ test("checkout flow", async ({ page }) => {
 
 After each test the integration automatically captures a final "End of test" frame and closes the transport.
 
+### When to capture
+
+There are two natural moments to call `capture`:
+
+**1. Before performing an important action** — capture the UI in the state that prompted the action. For example, before clicking a button:
+
+```ts
+const submitButton = page.getByRole("button", { name: "Submit" });
+await expect(submitButton).toBeVisible();
+await storyboard.capture("Ready to submit", submitButton);
+await submitButton.click();
+```
+
+If you provide a `beforeCapture` hook that already waits for the element to be stable and visible, the explicit assertion can be skipped.
+
+**2. After an action, once the outcome is verified** — assert the expected result first, then capture. This ensures the frame shows a confirmed, stable state rather than a transitional one:
+
+```ts
+await submitButton.click();
+await expect(page.getByRole("heading", { name: "Order confirmed" })).toBeVisible();
+await storyboard.capture("Order confirmed", page.getByRole("heading", { name: "Order confirmed" }));
+```
+
+**Tip: extract locators into consts.** A locator often appears in the assertion, the `capture` call, and the action itself. Extracting it avoids repetition:
+
+```ts
+const confirmationHeading = page.getByRole("heading", { name: "Order confirmed" });
+await expect(confirmationHeading).toBeVisible();
+await storyboard.capture("Order confirmed", confirmationHeading);
+```
+
 ### `PlaywrightStoryboardOptions`
 
 | Option          | Type                                                            | Description                                                                                                             |
