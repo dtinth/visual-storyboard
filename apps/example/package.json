@@ -4,10 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp dev --port 4174",
-    "build": "tsc && vp build",
-    "preview": "vp preview --port 4174",
-    "test": "vp test",
     "test:e2e": "vp exec playwright test"
   },
   "dependencies": {
@@ -17,7 +13,6 @@
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "typescript": "~5.9.3",
-    "vite": "catalog:",
     "vite-plus": "catalog:"
   }
 }
