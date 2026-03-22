@@ -75,6 +75,10 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 - [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
 
+## Monorepo Checks
+
+- Run `vp run check` from the repo root to validate across all packages. This builds `packages/core` first, then type-checks all consumers together.
+
 ## Releasing
 
 To bump the version and publish a new release of `packages/core`:
