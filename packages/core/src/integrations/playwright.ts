@@ -9,7 +9,12 @@ export interface LocatorLike {
   /** Returns the Page this locator belongs to. */
   page(): PageLike;
   /** Returns the bounding box of the first matching element, or null. */
-  boundingBox(): Promise<{ x: number; y: number; width: number; height: number } | null>;
+  boundingBox(): Promise<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>;
   /**
    * Evaluates a function in the browser context on the located element.
    * The element is typed as `unknown`; cast it inside the callback as needed.
@@ -25,13 +30,13 @@ export interface LocatorLike {
  * Minimal interface for a Playwright Page.
  * The actual `@playwright/test` Page satisfies this structurally.
  */
-export interface PageLike {
+export interface PageLike<TLocator extends LocatorLike = LocatorLike> {
   /** Takes a full-page screenshot and returns it as a buffer. */
   screenshot(): Promise<Uint8Array>;
   /** Returns the current viewport dimensions, or null if unset. */
   viewportSize(): { width: number; height: number } | null;
   /** Returns a Locator for the given selector. */
-  locator(selector: string): LocatorLike;
+  locator(selector: string): TLocator;
 }
 
 /**
@@ -48,31 +53,43 @@ export interface TestInfoLike {
 /**
  * Minimal interface for the Playwright `test` object.
  * The actual `@playwright/test` test object satisfies this structurally.
+ *
+ * The callable signature `(title, { page })` is included so TypeScript can
+ * infer `TPage` — and therefore the locator type — from the `test` argument.
  */
-export interface TestLike {
-  // oxlint-disable-next-line no-empty-pattern -- Playwright requires object destructuring
-  beforeEach(fn: (fixtures: object, testInfo: TestInfoLike) => Promise<void>): void;
-  // oxlint-disable-next-line no-empty-pattern -- Playwright requires object destructuring
-  afterEach(fn: (fixtures: object, testInfo: TestInfoLike) => Promise<void>): void;
-  info(): TestInfoLike;
+export interface TestLike<
+  TTestInfo extends TestInfoLike = TestInfoLike,
+  TPage extends PageLike = PageLike,
+> {
+  (title: string, fn: (fixtures: { page: TPage }, testInfo: TTestInfo) => Promise<void>): void;
+  beforeEach(fn: (fixtures: object, testInfo: TTestInfo) => Promise<void>): void;
+  afterEach(fn: (fixtures: object, testInfo: TTestInfo) => Promise<void>): void;
+  info(): TTestInfo;
 }
 
-export interface PlaywrightStoryboardOptions {
+export interface PlaywrightStoryboardOptions<
+  TTestInfo extends TestInfoLike = TestInfoLike,
+  TPage extends PageLike = PageLike,
+> {
+  /**
+   * The Playwright `test` object used to register `beforeEach`/`afterEach` hooks.
+   */
+  test: TestLike<TTestInfo, TPage>;
   /**
    * Transport instance, or a factory called once per test.
    * Use a factory to give each test its own output file.
    */
-  transport: StoryboardOutputTransport | ((testInfo: TestInfoLike) => StoryboardOutputTransport);
+  transport: StoryboardOutputTransport | ((testInfo: TTestInfo) => StoryboardOutputTransport);
   /**
    * Return `false` to disable capture entirely, e.g. based on an env variable.
    * Defaults to always enabled.
    */
   enabled?: () => boolean;
   /**
-   * Called before each capture when a `LocatorLike` is passed to `capture()`.
+   * Called before each capture when a locator is passed to `capture()`.
    * Use this to inject a stabilization wait (e.g. wait for animations to settle).
    */
-  beforeCapture?: (locator: LocatorLike) => Promise<void>;
+  beforeCapture?: (locator: ReturnType<TPage["locator"]>) => Promise<void>;
 }
 
 interface TestState {
@@ -83,9 +100,10 @@ interface TestState {
 /**
  * Playwright integration for visual-storyboard.
  *
- * Wires `beforeEach`/`afterEach` hooks into a Playwright test object to
- * automatically create and finalize a {@link StoryboardWriter} per test.
- * Individual test steps call {@link capture} to record frames.
+ * Registers `beforeEach`/`afterEach` hooks on the Playwright `test` object
+ * (passed via constructor options) to automatically create and finalize a
+ * {@link StoryboardWriter} per test. Individual test steps call {@link capture}
+ * to record frames.
  *
  * @example
  * ```ts
@@ -95,9 +113,10 @@ interface TestState {
  * import { FileTransport } from "visual-storyboard/transports/file";
  *
  * export const storyboard = new PlaywrightStoryboard({
+ *   test,
  *   transport: (testInfo) =>
  *     new FileTransport({ outputFile: `out/${testInfo.title}.ndjson` }),
- * }).install(test);
+ * }).install();
  *
  * // my.spec.ts
  * import { test } from "@playwright/test";
@@ -109,17 +128,19 @@ interface TestState {
  * });
  * ```
  */
-export class PlaywrightStoryboard {
-  private readonly options: PlaywrightStoryboardOptions;
-  private readonly state = new WeakMap<TestInfoLike, TestState>();
-  private testRef?: TestLike;
+export class PlaywrightStoryboard<
+  TTestInfo extends TestInfoLike = TestInfoLike,
+  TPage extends PageLike = PageLike,
+> {
+  private readonly options: PlaywrightStoryboardOptions<TTestInfo, TPage>;
+  private readonly state = new WeakMap<TTestInfo, TestState>();
 
-  constructor(options: PlaywrightStoryboardOptions) {
+  constructor(options: PlaywrightStoryboardOptions<TTestInfo, TPage>) {
     this.options = options;
   }
 
   /**
-   * Registers `beforeEach`/`afterEach` hooks on the given Playwright test object.
+   * Registers `beforeEach`/`afterEach` hooks on the Playwright `test` object.
    *
    * - `beforeEach`: creates a {@link StoryboardWriter} and writes an info event.
    * - `afterEach`: captures a final frame for every page touched during the test,
@@ -127,8 +148,8 @@ export class PlaywrightStoryboard {
    *
    * Returns `this` for chaining.
    */
-  install(test: TestLike): this {
-    this.testRef = test;
+  install(): this {
+    const { test } = this.options;
 
     // oxlint-disable-next-line no-empty-pattern -- Playwright requires object destructuring
     test.beforeEach(async ({}, testInfo) => {
@@ -137,7 +158,10 @@ export class PlaywrightStoryboard {
         typeof this.options.transport === "function"
           ? this.options.transport(testInfo)
           : this.options.transport;
-      const writer = new StoryboardWriter({ storyboardId: testInfo.title, transport });
+      const writer = new StoryboardWriter({
+        storyboardId: testInfo.title,
+        transport,
+      });
       await writer.writeInfo({ title: testInfo.title });
       this.state.set(testInfo, { writer, pages: new Set() });
     });
@@ -159,24 +183,23 @@ export class PlaywrightStoryboard {
   /**
    * Captures a visual frame at the current moment in the test.
    *
-   * - **`LocatorLike`**: runs `beforeCapture` (e.g. stabilize), takes a screenshot,
+   * - **Locator**: runs `beforeCapture` (e.g. stabilize), takes a screenshot,
    *   records the element's bounding box as a highlight, and captures an ARIA
    *   snapshot. Registers the locator's page for the end-of-test capture.
-   * - **`PageLike`**: takes a full-page screenshot and ARIA snapshot with no
+   * - **Page**: takes a full-page screenshot and ARIA snapshot with no
    *   highlight. Registers the page for the end-of-test capture.
    *
-   * No-op when capture is disabled or `install()` has not been called.
+   * No-op when capture is disabled or outside of a test.
    */
-  async capture(name: string, subject: LocatorLike | PageLike): Promise<void> {
-    if (!this.testRef) return;
-    const entry = this.state.get(this.testRef.info());
+  async capture(name: string, subject: ReturnType<TPage["locator"]> | TPage): Promise<void> {
+    const entry = this.state.get(this.options.test.info());
     if (!entry) return;
     await this.captureImpl(name, subject, entry);
   }
 
   private async captureImpl(
     name: string,
-    subject: LocatorLike | PageLike,
+    subject: ReturnType<TPage["locator"]> | PageLike,
     entry: TestState,
   ): Promise<void> {
     if (isLocatorLike(subject)) {
@@ -210,6 +233,8 @@ export class PlaywrightStoryboard {
   }
 }
 
-function isLocatorLike(subject: LocatorLike | PageLike): subject is LocatorLike {
+function isLocatorLike<TLocator extends LocatorLike>(
+  subject: TLocator | PageLike,
+): subject is TLocator {
   return typeof (subject as LocatorLike).page === "function";
 }

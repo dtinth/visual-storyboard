@@ -10,6 +10,7 @@ import { stabilize } from "./stabilize";
 const storyboardDir = join(dirname(fileURLToPath(import.meta.url)), "../storyboards");
 
 export const storyboard = new PlaywrightStoryboard({
+  test,
   transport: (testInfo) => {
     const slug = testInfo.titlePath
       .join(" ")
@@ -22,4 +23,4 @@ export const storyboard = new PlaywrightStoryboard({
     });
   },
   beforeCapture: stabilize,
-}).install(test);
+}).install();

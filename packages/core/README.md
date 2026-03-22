@@ -21,8 +21,9 @@ import { PlaywrightStoryboard } from "visual-storyboard/integrations/playwright"
 import { FileTransport } from "visual-storyboard/transports/file";
 
 export const storyboard = new PlaywrightStoryboard({
+  test,
   transport: (testInfo) => new FileTransport({ outputFile: `out/${testInfo.title}.ndjson` }),
-}).install(test);
+}).install();
 ```
 
 Then call `capture` in your tests:
