@@ -77,7 +77,7 @@ export type PlaywrightOutputTransportFactory<TTestInfo extends TestInfoLike = Te
 
 /**
  * Creates a {@link PlaywrightOutputTransportFactory} that writes each test's
- * storyboard to `<outputDir>/<slug>.ndjson`, where the slug is derived from
+ * storyboard to `<outputDir>/<slug>/storyboard.ndjson`, where the slug is derived from
  * `testInfo.titlePath`.
  */
 export function createPlaywrightFileOutputTransportFactory(
@@ -96,7 +96,7 @@ export function createPlaywrightFileOutputTransportFactory(
 
 /**
  * The default transport factory used when `transport` is not specified.
- * Writes to `test-storyboards/<slug>.ndjson` relative to `process.cwd()`.
+ * Writes to `test-storyboards/<slug>/storyboard.ndjson` relative to `process.cwd()`.
  */
 export const defaultPlaywrightOutputTransportFactory: PlaywrightOutputTransportFactory =
   createPlaywrightFileOutputTransportFactory("test-storyboards");
@@ -114,7 +114,7 @@ export interface PlaywrightStoryboardOptions<
    * Use a factory to give each test its own output file.
    *
    * Defaults to {@link defaultPlaywrightOutputTransportFactory}, which writes
-   * to `test-storyboards/<slug>.ndjson` relative to `process.cwd()`.
+   * to `test-storyboards/<slug>/storyboard.ndjson` relative to `process.cwd()`.
    */
   transport?: StoryboardOutputTransport | PlaywrightOutputTransportFactory<TTestInfo>;
   /**
