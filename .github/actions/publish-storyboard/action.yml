@@ -31,9 +31,9 @@ runs:
         echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        for f in "${{ github.workspace }}/${{ inputs.storyboard-dir }}"/*.ndjson; do
-          NAME=$(basename "$f")
-          STORYBOARD_URL="$STORYBOARD_BASE/$NAME"
+        for f in "${{ github.workspace }}/${{ inputs.storyboard-dir }}/"/*/storyboard.ndjson; do
+          SLUG=$(basename "$(dirname "$f")")
+          STORYBOARD_URL="$STORYBOARD_BASE/$SLUG/storyboard.ndjson"
           VIEWER_URL="https://visual-storyboard.vercel.app/?url=$STORYBOARD_URL"
           echo "- 🔗 [View in viewer]($VIEWER_URL) · [Raw NDJSON]($STORYBOARD_URL)" >> $GITHUB_STEP_SUMMARY
         done
