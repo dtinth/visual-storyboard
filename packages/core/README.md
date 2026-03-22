@@ -22,7 +22,7 @@ import { PlaywrightStoryboard } from "visual-storyboard/integrations/playwright"
 export const storyboard = new PlaywrightStoryboard({ test }).install();
 ```
 
-By default storyboards are written to `test-storyboards/<slug>.ndjson` next to `test-results/`. To write elsewhere, pass a custom transport factory:
+By default storyboards are written to `test-storyboards/<slug>.ndjson` next to `test-results/` (add `test-storyboards/` to `.gitignore`). To write elsewhere, pass a custom transport factory:
 
 ```ts
 import {
