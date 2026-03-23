@@ -22,6 +22,15 @@ add `visual-storyboard` as a dev dependency then read `node_modules/visual-story
 
 The [npm package’s README](packages/core/README.md) contains the recommended setup, API reference, and the guidelines for creating storyboards.
 
+## Projects that use visual-storyboard
+
+<!-- prettier-ignore -->
+| Project | Storyboard |
+| --- | --- |
+| visual-storyboard | [Viewer app (desktop)](https://visual-storyboard.vercel.app/?url=https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/viewer-storyboards/viewer-spec-ts-viewer-supports-keyboard-navigation-between-frames/storyboard.ndjson) · [Viewer app (mobile)](https://visual-storyboard.vercel.app/?url=https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/viewer-storyboards/viewer-spec-ts-viewer-works-on-mobile-screen/storyboard.ndjson) |
+| [bizdocgen](https://github.com/dtinth/bizdocgen) (business document generator) | [Storyboard](https://visual-storyboard.vercel.app/?url=https://ghartifacts.t3.storage.dev/dtinth/bizdocgen/branches/main/storyboards/grist-spec-ts-actually-works-with-grist/storyboard.ndjson) |
+| [vxbeamer](https://github.com/dtinth/vxbeamer) (voice transcriber) | [Storyboard](https://visual-storyboard.vercel.app/?url=https://storyboard.t3.storage.dev/dtinth/vxbeamer/storyboards/main/recording-spec-ts-records-audio-and-displays-transcript-from-mock-asr.ndjson) |
+
 ## Packages
 
 - [`packages/core`](packages/core) — TypeScript types, pluggable transport interface, `StoryboardWriter`, `FileTransport`, and the built-in Playwright integration. See the [core README](packages/core/README.md) for the full API.
