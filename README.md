@@ -8,6 +8,16 @@ _Click the image to open the live example in the viewer._
 
 At key points in your test, call `storyboard.capture("Step name", locator)`. After the run you get an NDJSON file with screenshots, highlights, and accessibility snapshots for each step — load it in the viewer to browse the test frame by frame.
 
+## Getting Started
+
+If you have an existing Playwright test, and you'd like to start creating storyboards, the easiest way to get started is to give the following prompt to your coding agent (or follow them yourself):
+
+```markdown
+add `visual-storyboard` as a dev dependency then read `node_modules/visual-storyboard/README.md`
+```
+
+The [npm package’s README](packages/core/README.md) contains the recommended setup, API reference, and the guidelines for creating storyboards.
+
 ## Packages
 
 - [`packages/core`](packages/core) — TypeScript types, pluggable transport interface, `StoryboardWriter`, `FileTransport`, and the built-in Playwright integration. See the [core README](packages/core/README.md) for the full API.
