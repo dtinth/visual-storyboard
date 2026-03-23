@@ -6,9 +6,13 @@ A toolkit for capturing named screenshots during automated tests and viewing the
 
 _Click the image to open the live example in the viewer._
 
+## How it works
+
 At key points in your test, call `storyboard.capture("Step name", locator)`. After the run you get an NDJSON file with screenshots, highlights, and accessibility snapshots for each step — load it in the viewer to browse the test frame by frame.
 
-## Getting Started
+<img width="2526" height="802" alt="image" src="https://github.com/user-attachments/assets/16912c36-e449-42ff-a425-09088ce1b038" />
+
+## Getting started
 
 If you have an existing Playwright test, and you'd like to start creating storyboards, the easiest way to get started is to give the following prompt to your coding agent (or follow them yourself):
 
