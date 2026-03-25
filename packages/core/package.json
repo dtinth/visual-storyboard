@@ -28,7 +28,7 @@
     "dev": "vp pack --watch",
     "test": "vp test",
     "check": "vp check",
-    "typedoc": "printf '{}' >/tmp/visual-storyboard-typedoc-options.json && vp exec typedoc --options /tmp/visual-storyboard-typedoc-options.json --json typedoc.json src/index.ts src/transports/file.ts src/integrations/playwright.ts && vp fmt typedoc.json",
+    "typedoc": "vp exec typedoc --options typedoc.options.json --json typedoc.json src/index.ts src/transports/file.ts src/integrations/playwright.ts && vp fmt typedoc.json",
     "prepublishOnly": "vp run build && vp run typedoc"
   },
   "devDependencies": {
