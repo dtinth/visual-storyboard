@@ -27,6 +27,15 @@ jobs:
       - name: Run unit tests
         run: vp run test
 
+      - name: Generate TypeDoc JSON
+        run: vp run visual-storyboard#typedoc
+
+      - name: Upload TypeDoc JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-typedoc-json
+          path: packages/core/typedoc.json
+
   e2e:
     runs-on: ubuntu-latest
     steps:

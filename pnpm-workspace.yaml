@@ -7,6 +7,7 @@ catalog:
   "@playwright/test": 1.58.2
   "@types/node": ^24
   bootstrap: 5.3.8
+  typedoc: 0.28.18
   typescript: ^5
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vite-plus: latest
