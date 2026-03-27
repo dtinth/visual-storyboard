@@ -11,6 +11,7 @@
     "noUnusedLocals": true,
     "allowImportingTsExtensions": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
     "isolatedModules": true,
