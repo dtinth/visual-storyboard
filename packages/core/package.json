@@ -1,6 +1,6 @@
 {
   "name": "visual-storyboard",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Core types, transport interfaces, writer helpers, and default transports for visual-storyboard.",
   "license": "MIT",
   "repository": {
@@ -13,9 +13,21 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.mjs",
-    "./integrations/playwright": "./dist/integrations/playwright.mjs",
-    "./transports/file": "./dist/transports/file.mjs",
+    ".": {
+      "typedoc": "./src/index.ts",
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./integrations/playwright": {
+      "typedoc": "./src/integrations/playwright.ts",
+      "types": "./dist/integrations/playwright.d.mts",
+      "import": "./dist/integrations/playwright.mjs"
+    },
+    "./transports/file": {
+      "typedoc": "./src/transports/file.ts",
+      "types": "./dist/transports/file.d.mts",
+      "import": "./dist/transports/file.mjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
