@@ -6,7 +6,9 @@ export default defineConfig({
     dts: {
       tsgo: true,
     },
-    exports: true,
+    exports: {
+      devExports: "typedoc",
+    },
     sourcemap: true,
   },
   lint: {
