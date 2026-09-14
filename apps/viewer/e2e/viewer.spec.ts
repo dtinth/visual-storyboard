@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 
 import { storyboard } from "./support";
 
+storyboard.enable(test);
+
 const STORYBOARD_URL =
   "https://storyboard.t3.storage.dev/dtinth/visual-storyboard/main/storyboards/example-spec-ts-swag-labs-checkout-flow/storyboard.ndjson";
 

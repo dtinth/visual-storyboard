@@ -106,9 +106,12 @@ export interface PlaywrightStoryboardOptions<
   TPage extends PageLike = PageLike,
 > {
   /**
-   * The Playwright `test` object used to register `beforeEach`/`afterEach` hooks.
+   * Not used at runtime — purely lets TypeScript infer `TTestInfo`/`TPage` (and
+   * therefore the locator type accepted by `capture()`) when constructing a
+   * shared instance ahead of calling {@link PlaywrightStoryboard.enable}.
+   * Pass the same `test` object you'll later pass to `enable()`.
    */
-  test: TestLike<TTestInfo, TPage>;
+  test?: TestLike<TTestInfo, TPage>;
   /**
    * Transport instance, or a factory called once per test.
    * Use a factory to give each test its own output file.
@@ -137,27 +140,46 @@ interface TestState {
 /**
  * Playwright integration for visual-storyboard.
  *
- * Registers `beforeEach`/`afterEach` hooks on the Playwright `test` object
- * (passed via constructor options) to automatically create and finalize a
- * {@link StoryboardWriter} per test. Individual test steps call {@link capture}
- * to record frames.
+ * Construct one shared instance and export it from a support module. Then,
+ * in **each** spec file that uses it, call {@link enable} with that file's
+ * `test` object — this registers `beforeEach`/`afterEach` hooks scoped to
+ * that spec file specifically. Because the hooks are registered by code
+ * running inside the spec file itself, this works correctly no matter how
+ * many spec files share the same `storyboard` instance or in what order
+ * Playwright loads them — unlike registering hooks once inside a shared
+ * module, which only ever binds to whichever spec file happens to import
+ * that module first in a given worker process.
+ *
+ * A spec file that never calls `enable()` simply gets no-op captures — the
+ * library can't distinguish "forgot to call `enable()`" from "deliberately
+ * not using storyboards here", so it treats both as disabled.
  *
  * @example
  * ```ts
  * // support.ts
- * import { test } from "@playwright/test";
  * import { PlaywrightStoryboard } from "visual-storyboard/integrations/playwright";
  * import { FileTransport } from "visual-storyboard/transports/file";
  *
  * export const storyboard = new PlaywrightStoryboard({
- *   test,
  *   transport: (testInfo) =>
  *     new FileTransport({ outputFile: `out/${testInfo.title}.ndjson` }),
- * }).install();
+ * });
+ *
+ * // login-page.ts — a page object; no `storyboard` threading required
+ * import { storyboard } from "./support";
+ *
+ * export class LoginPage {
+ *   constructor(private page: Page) {}
+ *   async login() {
+ *     await storyboard.capture("Login page", this.page);
+ *   }
+ * }
  *
  * // my.spec.ts
  * import { test } from "@playwright/test";
  * import { storyboard } from "./support";
+ *
+ * storyboard.enable(test);
  *
  * test("user login", async ({ page }) => {
  *   await page.goto("/login");
@@ -171,13 +193,17 @@ export class PlaywrightStoryboard<
 > {
   private readonly options: PlaywrightStoryboardOptions<TTestInfo, TPage>;
   private readonly state = new WeakMap<TTestInfo, TestState>();
+  private test: TestLike<TTestInfo, TPage> | undefined;
 
-  constructor(options: PlaywrightStoryboardOptions<TTestInfo, TPage>) {
+  constructor(options: PlaywrightStoryboardOptions<TTestInfo, TPage> = {}) {
     this.options = options;
   }
 
   /**
-   * Registers `beforeEach`/`afterEach` hooks on the Playwright `test` object.
+   * Registers `beforeEach`/`afterEach` hooks on the given Playwright `test`
+   * object. Call this once from **each** spec file that uses this storyboard
+   * — not just once from a shared support module — so the hooks are
+   * registered while that specific spec file is loading.
    *
    * - `beforeEach`: creates a {@link StoryboardWriter} and writes an info event.
    * - `afterEach`: captures a final frame for every page touched during the test,
@@ -185,8 +211,8 @@ export class PlaywrightStoryboard<
    *
    * Returns `this` for chaining.
    */
-  install(): this {
-    const { test } = this.options;
+  enable(test: TestLike<TTestInfo, TPage>): this {
+    this.test = test;
 
     // oxlint-disable-next-line no-empty-pattern -- Playwright requires object destructuring
     test.beforeEach(async ({}, testInfo) => {
@@ -225,10 +251,12 @@ export class PlaywrightStoryboard<
    * - **Page**: takes a full-page screenshot and ARIA snapshot with no
    *   highlight. Registers the page for the end-of-test capture.
    *
-   * No-op when capture is disabled or outside of a test.
+   * No-op when capture is disabled, outside of a test, or when `enable()`
+   * was never called for the spec file the current test belongs to.
    */
   async capture(name: string, subject: ReturnType<TPage["locator"]> | TPage): Promise<void> {
-    const entry = this.state.get(this.options.test.info());
+    if (!this.test) return;
+    const entry = this.state.get(this.test.info());
     if (!entry) return;
     await this.captureImpl(name, subject, entry);
   }

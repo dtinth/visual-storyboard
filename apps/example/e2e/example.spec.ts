@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 
 import { storyboard } from "./support";
 
+storyboard.enable(test);
+
 test("swag labs checkout flow", async ({ page }) => {
   // Login
   await page.goto("/");
