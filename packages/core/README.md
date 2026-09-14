@@ -16,10 +16,9 @@ The quickest way to get started. Create a support file:
 
 ```ts
 // e2e/support.ts
-import { test } from "@playwright/test";
 import { PlaywrightStoryboard } from "visual-storyboard/integrations/playwright";
 
-export const storyboard = new PlaywrightStoryboard({ test }).install();
+export const storyboard = new PlaywrightStoryboard();
 ```
 
 By default storyboards are written to `test-storyboards/<slug>/storyboard.ndjson` next to `test-results/` (add `test-storyboards/` to `.gitignore`). To write elsewhere, pass a custom transport factory:
@@ -31,17 +30,18 @@ import {
 } from "visual-storyboard/integrations/playwright";
 
 export const storyboard = new PlaywrightStoryboard({
-  test,
   transport: createPlaywrightFileOutputTransportFactory("my-storyboards"),
-}).install();
+});
 ```
 
-Then call `capture` in your tests:
+Then, in **each** spec file that uses it, call `storyboard.enable(test)` once before calling `capture`:
 
 ```ts
 // e2e/my.spec.ts
 import { test } from "@playwright/test";
 import { storyboard } from "./support";
+
+storyboard.enable(test);
 
 test("checkout flow", async ({ page }) => {
   await page.goto("/");
@@ -49,6 +49,25 @@ test("checkout flow", async ({ page }) => {
   // ... interact ...
   await storyboard.capture("Order confirmation", page.locator(".confirmation"));
 });
+```
+
+**Why `enable(test)` per spec file, rather than once in `support.ts`?** Playwright attaches `beforeEach`/`afterEach` hooks to whichever spec file is being loaded at the moment they're registered. If registration happened once inside a shared `support.ts`, only the first spec file to import that module in a given worker process would actually get working hooks — every other spec file sharing the same cached module would silently capture nothing, with no error. Calling `enable(test)` directly inside each spec file sidesteps this: the registration runs while _that_ file is loading, no matter how many files share the same `storyboard` instance or what order Playwright loads them in.
+
+A spec file that never calls `enable()` just gets no-op captures — the library can't tell "forgot to call `enable()`" apart from "not using storyboards here", so it treats both as disabled. Since whether a file is enabled is now a visible line of code in that file, this omission shows up in review rather than only in a diff of output directories.
+
+Because `capture()` looks up the current test ambiently, page objects can call it directly without `storyboard` being threaded through their constructors:
+
+```ts
+// e2e/login-page.ts
+import { storyboard } from "./support";
+
+export class LoginPage {
+  constructor(private page: Page) {}
+  async login() {
+    await this.page.getByPlaceholder("Username").fill("standard_user");
+    await storyboard.capture("Login page", this.page);
+  }
+}
 ```
 
 `capture` accepts a **locator** (records a bounding-box highlight and scrolls the element into view) or a **page** (full-page screenshot, no highlight). An ARIA snapshot is always captured alongside the screenshot.
@@ -88,12 +107,12 @@ await storyboard.capture("Order confirmed", confirmationHeading);
 
 ### `PlaywrightStoryboardOptions`
 
-| Option          | Type                                                            | Description                                                                                                             |
-| --------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `test`          | `TestLike`                                                      | The Playwright `test` object (required)                                                                                 |
-| `transport`     | `StoryboardOutputTransport \| PlaywrightOutputTransportFactory` | Transport instance or per-test factory. Defaults to `defaultPlaywrightOutputTransportFactory` (`test-storyboards/` dir) |
-| `enabled`       | `() => boolean`                                                 | Return `false` to disable capture (e.g. based on an env var)                                                            |
-| `beforeCapture` | `(locator) => Promise<void>`                                    | Hook called before each locator capture — use it to wait for animations to settle                                       |
+| Option          | Type                                                            | Description                                                                                                                         |
+| --------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `test`          | `TestLike`                                                      | Optional — not used at runtime, only lets TypeScript infer locator/page types. Pass the same `test` you'll later pass to `enable()` |
+| `transport`     | `StoryboardOutputTransport \| PlaywrightOutputTransportFactory` | Transport instance or per-test factory. Defaults to `defaultPlaywrightOutputTransportFactory` (`test-storyboards/` dir)             |
+| `enabled`       | `() => boolean`                                                 | Return `false` to disable capture (e.g. based on an env var)                                                                        |
+| `beforeCapture` | `(locator) => Promise<void>`                                    | Hook called before each locator capture — use it to wait for animations to settle                                                   |
 
 ---
 
